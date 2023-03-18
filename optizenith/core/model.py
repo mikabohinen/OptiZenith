@@ -1,11 +1,10 @@
 from math import inf
 from typing import List
 from .objective import Objective
-from .variable import Variable
 from .constraint import Constraint
-from .linear_expr import LinearExpr
+from .linear_expr import LinearExpr, Variable
 # from ..solvers.interior_point import InteriorPointSolver
-# from ..solvers.simplex import SimplexSolver
+from ..solvers.simplex import SimplexSolver
 
 class Model:
     """
