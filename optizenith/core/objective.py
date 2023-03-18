@@ -9,13 +9,13 @@ class Objective:
         sense (str): The optimization direction ("minimize" or "maximize").
     """
 
-    def __init__(self, expression: LinearExpr, sense: str = "minimize"):
+    def __init__(self, expression: LinearExpr, sense: str = "min"):
         """
         Initializes a new objective function instance.
 
         Args:
             expression (LinearExpr): The expression of the objective function.
-            sense (str): The optimization direction ("minimize" or "maximize"). Defaults to "minimize".
+            sense (str): The optimization direction ("min" or "max"). Defaults to "min".
         """
         self.expression = expression
         self.sense = sense

@@ -1,3 +1,4 @@
+from math import inf
 from typing import List
 from .objective import Objective
 from .variable import Variable
@@ -45,7 +46,7 @@ class Model:
         self.constraints.append(constraint)
         return constraint
 
-    def add_variable(self, name: str, lb: float, ub: float, var_type: str="continuous") -> Variable:
+    def add_variable(self, name: str, lb: float=0, ub: float=inf, var_type: str="continuous") -> Variable:
         """
         Adds a variable to the model.
 
