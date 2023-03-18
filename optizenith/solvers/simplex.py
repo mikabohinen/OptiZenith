@@ -97,41 +97,33 @@ class SimplexSolver(BaseSolver):
         x[non_basis] = 0
 
         for iteration in range(self._max_iterations):
-            # check for optimality
             if np.all(z_N >= self._tolerance):
                 break
 
-            # Select the entering variable
             j = np.argmin(z_N)
 
             delta_x_B = BN[:, j]
 
-            # Check for unboundedness
             if np.all(delta_x_B <= self._tolerance):
                 raise ValueError("The problem is unbounded.")
 
-            # Compute primal step length and select leaving variable
             step_lengths = np.array([x_B[i] / delta_x_B[i] if delta_x_B[i] > 0 else np.inf for i in range(m)])
             i = np.argmin(step_lengths)
             t = step_lengths[i]
 
-            # Compute dual step length
             delta_z_N = -(BN).T[:, i]
             s = z_N[j] / delta_z_N[j]
 
             # Update primal and dual solution
-            x[i] = t
-            for idx, bi in enumerate(basis):
-                x[bi] = x_B[idx] - t * delta_x_B[idx]
-            x[non_basis[j]] = 0
+            x[non_basis[j]] = t  
+            x[basis] -= (t * delta_x_B).reshape(-1, 1)  
+            x[basis[i]] = 0  
 
-            # Update the basis and non-basis sets
             entering_var = non_basis[j]
             leaving_var = basis[i]
             basis[i] = entering_var
             non_basis[j] = leaving_var
 
-            # Update B, N, B_inv, BN, x_B, and z_N for the new basis
             B = A[:, basis]
             N = A[:, non_basis]
             B_inv = np.linalg.inv(B)
@@ -140,5 +132,5 @@ class SimplexSolver(BaseSolver):
             z_N = (BN).T @ c[basis] - c[non_basis]
 
         optimal_value = c.T @ x
-        optimal_solution = {f"x{i}": x[i, 0] for i in range(n)}
+        optimal_solution = {f"x{i+1}": x[i, 0] for i in range(n)}
         return float(optimal_value), optimal_solution
