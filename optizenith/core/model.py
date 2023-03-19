@@ -1,10 +1,14 @@
-from math import inf
-from typing import List
 from .objective import Objective
 from .constraint import Constraint
 from .linear_expr import LinearExpr, Variable
-# from ..solvers.interior_point import InteriorPointSolver
+from ..solvers.interior_point import InteriorPointSolver
 from ..solvers.simplex import SimplexSolver
+
+# Third party imports
+from math import inf
+from typing import List
+from collections import namedtuple
+
 
 class Model:
     """
@@ -83,18 +87,20 @@ class Model:
             **kwargs: Additional keyword arguments to pass to the solver.
 
         Returns:
-            Solution: The solution of the model.
+            namedtuple[obj (float), sol (dict)]: A namedtuple with the objective value and the solution.
         """
 
         if solver.lower() == "simplex":
             solver_instance = SimplexSolver(self, **kwargs)
         elif solver.lower() == "interior-point":
+            raise NotImplementedError("Interior-point solver is not implemented yet. Will hopefully be so in the future.")
             solver_instance = InteriorPointSolver(self, **kwargs)
         else:
             raise ValueError(f"Unknown solver: {solver}")
 
-        solution = solver_instance.solve()
-        return solution
+        obj, sol = solver_instance.solve()
+        Solution = namedtuple("Solution", ["objective", "solution"])
+        return Solution(obj, sol)
 
     def __str__(self) -> str:
         """

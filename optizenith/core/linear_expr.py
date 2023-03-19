@@ -4,7 +4,7 @@ class Variable:
     """
     Represents a decision variable in an LP model.
 
-    attributes:
+    Attributes:
         name (str): The name of the variable.
         lb (float): The lower bound of the variable.
         ub (float): The upper bound of the variable.
