@@ -12,7 +12,7 @@ from collections import namedtuple
 
 class Model:
     """
-    Represents a linear programming (LP) model.
+    Represents a linear programming (LP) problem.
 
     Attributes:
         name (str): The name of the model.

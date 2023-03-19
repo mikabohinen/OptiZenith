@@ -59,34 +59,6 @@ class Variable:
     def var_type(self, var_type: str) -> None:
         self._var_type = var_type
 
-    # TODO: Fix the circular import problem.
-    # def __add__(self, other) -> LinearExpr:
-    #     """
-    #     Creates a linear expression with the two variables.
-
-    #     Returns:
-    #         LinearExpr: A linear expression with the two variables.
-    #     """
-    #     
-    #     terms = {self: 1, other: 1}
-    #     return LinearExpr(terms)
-
-  # # def __mul__(self, scalar) -> LinearExpr:
-    #     """
-    #     Returns:
-    #         LinearExpr: A linear expression with the scalar multiplied by the variable.
-    #     """
-    #     return LinearExpr({self: scalar})
-
-    # def __rmul__(self, scalar) -> LinearExpr:
-        # return self * scalar
-
-    # def __sub__(self, other) -> LinearExpr:
-    #     return self + (-1 * other)
-
-    # def __neg__(self) -> LinearExpr:
-    #     return -1 * self
-    # 
     def __str__(self) -> str:
         return f"{self.name} ({self.var_type}): [{self.lb}, {self.ub}]"
 
@@ -101,6 +73,28 @@ class LinearExpr:
     Attributes:
         terms (dict[Variable, float]): The terms of the linear expression.
     """
+
+    @classmethod
+    def from_variable(cls, variable: Variable) -> "LinearExpr":
+        """
+        Creates a linear expression from a variable.
+
+        Args:
+            variable (Variable): The variable to create the linear expression from.
+        """
+
+        return cls([variable], [1])
+
+    @classmethod
+    def from_constant(cls, constant: float) -> "LinearExpr":
+        """
+        Creates a linear expression from a constant.
+
+        Args:
+            constant (float): The constant to create the linear expression from.
+        """
+
+        return cls([Variable("constant", 0, 0)], [constant])
 
     def __init__(self, variables: List[Variable]=None, coefficients: List[float]=None):
         if variables is None:
@@ -124,68 +118,30 @@ class LinearExpr:
             self.variables.append(variable)
             self.coefficients.append(coefficient)
 
-    def __add__(self, other: "LinearExpr") -> "LinearExpr":
-        """
-        Adds two linear expressions.
-
-        Args:
-            other (LinearExpr): The other linear expression.
-
-        Returns:
-            LinearExpr: The sum of the two linear expressions.
-        """
-        result = LinearExpr(self.variables, self.coefficients)
-
+    def __add__(self, other: Union["LinearExpr", Variable, int, float]) -> "LinearExpr":
         if isinstance(other, LinearExpr):
-            for variable, coefficient in zip(self.variables, self.coefficients):
+            result = LinearExpr(self.variables, self.coefficients)
+            for variable, coefficient in zip(other.variables, other.coefficients):
                 result.add_term(variable, coefficient)
+            return result
+        elif isinstance(other, Variable):
+            return self + LinearExpr.from_variable(other)
         elif isinstance(other, (int, float)):
-            result.add_term(Variable("constant", 0, 0), other)
+            return self + LinearExpr.from_constant(other)
         else:
             raise TypeError("Unsupported operand type(s) for +: 'LinearExpr' and '{}'".format(type(other)))
 
-        return result
-
-    def __sub__(self, other: "LinearExpr") -> "LinearExpr":
-        """
-        Subtracts two linear expressions.
-
-        Args:
-            other (LinearExpr): The other linear expression.
-
-        Returns:
-            LinearExpr: The difference of the two linear expressions.
-        """
+    def __sub__(self, other: Union["LinearExpr", Variable, int, float]) -> "LinearExpr":
         return self + (-other)
 
-    def __neg__(self) -> "LinearExpr":
-        """
-        Negates a linear expression.
-
-        Returns:
-            LinearExpr: The negated linear expression.
-        """
-
-        result = LinearExpr()
-        for variable, coefficient in zip(self.variables, self.coefficients):
-            result[variable] = -coefficient
-        return result
-
     def __mul__(self, scalar: Union[int,float]) -> "LinearExpr":
-        """
-        Performs scalar multiplication on a linear expression.
-        
-        Args:
-            scalar (int|float): The scalar to multiply the linear expression by.
-        """
-
-        if not isinstance(scalar, (int, float)):
+        if isinstance(scalar, (int, float)):
+            result = LinearExpr()
+            for variable, coefficient in zip(self.variables, self.coefficients):
+                result.add_term(variable, coefficient * scalar)
+            return result
+        else:
             raise TypeError("Scalar multiplication is only supported with int or float values")
-
-        result = LinearExpr()
-        for variable, coefficient in zip(self.variables, self.coefficients):
-            result.add_term(variable, coefficient * scalar)
-        return result
 
     def __rmul__(self, scalar: Union[int,float]) -> "LinearExpr":
         return self * scalar
